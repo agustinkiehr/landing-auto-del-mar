@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Colores — tomados de DESIGN.md (Atelier Renault Losange) */
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1c1b1b;
+  --color-primary-fixed: #e5e2e1;
+  --color-primary-fixed-dim: #c8c6c5;
+
+  --color-surface: #f4faff;
+  --color-surface-dim: #c9dde9;
+  --color-surface-bright: #f4faff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #e8f6ff;
+  --color-surface-container: #ddf1fd;
+  --color-surface-container-high: #d7ebf8;
+  --color-surface-container-highest: #d1e5f2;
+  --color-surface-variant: #d1e5f2;
+
+  --color-on-surface: #0a1e27;
+  --color-on-surface-variant: #444748;
+  --color-outline: #747878;
+  --color-outline-variant: #c4c7c7;
+
+  --color-secondary: #745b00;
+  --color-secondary-container: #fecb00;
+  --color-secondary-fixed: #ffe08b;
+  --color-secondary-fixed-dim: #f1c100;
+
+  --color-renault-yellow: #ffcc00;
+  --color-whatsapp-green: #25d366;
+  --color-mesh-lavender: #eae6f8;
+  --color-mesh-sky: #e1effe;
+  --color-mesh-blush: #fce8ec;
+  --color-stock-available: #0e8345;
+  --color-discontinued-amber: #c05621;
+
+  /* Tipografía — cargada via next/font en layout.tsx */
+  --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Spacing custom (además de la escala default de Tailwind) */
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-mobile: 1rem;
+  --spacing-margin: 3rem;
+  --spacing-margin-mobile: 1.25rem;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+}
