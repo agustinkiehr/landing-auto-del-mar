@@ -9,20 +9,18 @@ export default function Header() {
     <header className="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
       <div className="h-20 max-w-[1360px] mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-space-md">
         <a href="#" className="flex items-center gap-space-sm">
-          <svg
-            className="w-8 h-10 text-primary"
-            fill="currentColor"
-            viewBox="0 0 100 130"
-          >
-            <path d="M50 0 L95 55 L75 80 L50 49 L25 80 L5 55 Z" />
-            <path d="M50 130 L5 75 L25 50 L50 81 L75 50 L95 75 Z" />
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-auto-del-mar.png"
+            alt="Auto del Mar"
+            className="h-11 w-11 object-contain"
+          />
           <div className="hidden sm:flex flex-col border-l border-outline-variant/40 pl-space-sm">
             <span className="font-heading text-[15px] tracking-wider font-bold text-primary leading-none">
               RENAULT
             </span>
             <span className="text-[9px] tracking-widest text-on-surface-variant uppercase font-semibold mt-0.5">
-              Auto del Mar · Repuestos Originales
+              Repuestos Originales · Mar del Plata
             </span>
           </div>
         </a>
