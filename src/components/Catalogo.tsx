@@ -178,23 +178,23 @@ function ModeloChip({
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 shrink-0 rounded-xl px-space-sm py-space-sm border transition-colors ${
+      className={`flex flex-col items-center gap-2 shrink-0 rounded-xl px-space-md py-space-md border transition-colors ${
         activo
           ? "border-renault-yellow bg-surface-container-lowest shadow-sm"
           : "border-transparent bg-surface-container-lowest/60 hover:bg-surface-container-lowest"
       }`}
     >
-      <div className="w-16 h-16 rounded-lg bg-surface-container-lowest flex items-center justify-center overflow-hidden">
+      <div className="w-28 h-28 rounded-lg bg-surface-container-lowest flex items-center justify-center overflow-hidden">
         {foto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={foto} alt={nombre} className="w-full h-full object-contain" />
         ) : (
-          <span className="text-on-surface-variant text-[10px]">
+          <span className="text-on-surface-variant text-[12px]">
             {nombre.slice(0, 3).toUpperCase()}
           </span>
         )}
       </div>
-      <span className="text-[11px] font-heading font-semibold text-on-surface whitespace-nowrap">
+      <span className="text-[13px] font-heading font-semibold text-on-surface whitespace-nowrap">
         {nombre}
       </span>
     </button>

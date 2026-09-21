@@ -11,9 +11,9 @@ export default function Header() {
         <a href="#" className="flex items-center gap-space-sm">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo-auto-del-mar.png"
-            alt="Auto del Mar"
-            className="h-11 w-11 object-contain"
+            src="/renault-logo.png"
+            alt="Renault"
+            className="h-9 w-9 object-contain"
           />
           <div className="hidden sm:flex flex-col border-l border-outline-variant/40 pl-space-sm">
             <span className="font-heading text-[15px] tracking-wider font-bold text-primary leading-none">
