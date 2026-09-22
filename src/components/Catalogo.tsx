@@ -99,6 +99,7 @@ export default function Catalogo({
             >
               <ModeloChip
                 nombre="Todos los modelos"
+                esTodos
                 activo={modeloActivo === "todos"}
                 onClick={() => setModeloActivo("todos")}
               />
@@ -194,14 +195,37 @@ export default function Catalogo({
   );
 }
 
+function TodosIcon() {
+  return (
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-renault-yellow"
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
 function ModeloChip({
   nombre,
   foto,
+  esTodos = false,
   activo,
   onClick,
 }: {
   nombre: string;
   foto?: string | null;
+  esTodos?: boolean;
   activo: boolean;
   onClick: () => void;
 }) {
@@ -214,10 +238,12 @@ function ModeloChip({
           : "border-transparent bg-surface-container-lowest/60 hover:bg-surface-container-lowest"
       }`}
     >
-      <div className="w-64 h-64 rounded-lg bg-surface-container-lowest flex items-center justify-center overflow-hidden">
+      <div className="w-56 h-56 rounded-lg bg-surface-container-lowest flex items-center justify-center overflow-hidden">
         {foto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={foto} alt={nombre} className="w-full h-full object-contain" />
+        ) : esTodos ? (
+          <TodosIcon />
         ) : (
           <span className="text-on-surface-variant text-[16px]">
             {nombre.slice(0, 3).toUpperCase()}
