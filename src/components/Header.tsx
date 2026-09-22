@@ -45,7 +45,7 @@ export default function Header() {
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-whatsapp-green text-white px-3.5 py-2 rounded-lg font-heading font-bold text-[12px] uppercase tracking-wide hover:opacity-95 transition-opacity shadow-[0_4px_12px_rgba(37,211,102,0.25)]"
+          className="flex items-center gap-2 bg-whatsapp-green text-white px-3.5 py-2 rounded-lg font-heading font-bold text-[12px] uppercase tracking-wide transition-all duration-200 hover:opacity-95 hover:scale-105 active:scale-95 shadow-[0_4px_12px_rgba(37,211,102,0.25)]"
         >
           WhatsApp
         </a>
