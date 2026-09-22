@@ -1,10 +1,41 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Modelo, Repuesto } from "@/lib/supabase";
 import { buildWhatsappLink } from "@/lib/whatsapp";
 
 type RepuestoConModelos = Repuesto & { modelos: string[] };
+
+const TABS = ["todos", "vigente", "clasico"] as const;
+const PAGE_SIZE = 16;
+
+function useAnimatedNumber(value: number) {
+  const [display, setDisplay] = useState(value);
+  const prevRef = useRef(value);
+
+  useEffect(() => {
+    const from = prevRef.current;
+    const to = value;
+    if (from === to) return;
+    const duration = 350;
+    const start = performance.now();
+    let raf: number;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        prevRef.current = to;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+
+  return display;
+}
 
 export default function Catalogo({
   repuestos,
@@ -16,8 +47,20 @@ export default function Catalogo({
   const [modeloActivo, setModeloActivo] = useState<string>("todos");
   const [categoriaActiva, setCategoriaActiva] = useState<string>("todas");
   const [busqueda, setBusqueda] = useState("");
-  const [tab, setTab] = useState<"todos" | "vigente" | "clasico">("todos");
+  const [tab, setTab] = useState<(typeof TABS)[number]>("todos");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const modelosScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [tab, modeloActivo, categoriaActiva, busqueda]);
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 700);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const scrollModelos = (direccion: 1 | -1) => {
     modelosScrollRef.current?.scrollBy({
@@ -50,6 +93,10 @@ export default function Catalogo({
     return true;
   });
 
+  const visibles = filtrados.slice(0, visibleCount);
+  const hayMas = filtrados.length > visibleCount;
+  const animatedCount = useAnimatedNumber(filtrados.length);
+
   return (
     <>
       {/* SELECTOR DE MODELO */}
@@ -71,14 +118,21 @@ export default function Catalogo({
                 Filtrá el catálogo según la mecánica y chasis de tu vehículo.
               </p>
             </div>
-            <div className="inline-flex bg-surface-container rounded-lg p-1">
-              {(["todos", "vigente", "clasico"] as const).map((t) => (
+            <div className="relative inline-grid grid-cols-3 bg-surface-container rounded-lg p-1">
+              <div
+                className="absolute inset-y-1 left-1 rounded-md bg-primary transition-transform duration-300 ease-out"
+                style={{
+                  width: "calc((100% - 8px) / 3)",
+                  transform: `translateX(${TABS.indexOf(tab) * 100}%)`,
+                }}
+              />
+              {TABS.map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`px-3 py-1.5 text-[12px] font-heading font-semibold rounded-md uppercase tracking-wide transition-all duration-200 hover:scale-105 active:scale-95 ${
+                  className={`relative z-10 px-3 py-1.5 text-[12px] font-heading font-semibold rounded-md uppercase tracking-wide transition-colors duration-200 active:scale-95 ${
                     tab === t
-                      ? "bg-primary text-on-primary"
+                      ? "text-on-primary"
                       : "text-on-surface-variant hover:text-primary"
                   }`}
                 >
@@ -165,7 +219,7 @@ export default function Catalogo({
         <div className="max-w-[1360px] mx-auto px-margin-mobile md:px-margin">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-sm mb-space-lg">
             <h2 className="font-heading text-[20px] md:text-[24px] font-bold text-primary">
-              Catálogo ({filtrados.length})
+              Catálogo ({animatedCount})
             </h2>
             <div className="flex items-center bg-surface-container-low rounded-lg px-space-sm py-2 w-full md:w-72">
               <input
@@ -183,14 +237,39 @@ export default function Catalogo({
               modelo o categoría.
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
-              {filtrados.map((r, i) => (
-                <RepuestoCard key={r.id} repuesto={r} delay={i} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+                {visibles.map((r, i) => (
+                  <RepuestoCard key={r.id} repuesto={r} delay={i} />
+                ))}
+              </div>
+              {hayMas && (
+                <div className="flex justify-center mt-space-lg">
+                  <button
+                    onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                    className="px-space-lg py-3 rounded-lg border border-outline-variant font-heading font-semibold text-[13px] uppercase tracking-wide text-on-surface transition-all duration-200 hover:border-primary hover:bg-surface-container-low hover:scale-105 active:scale-95"
+                  >
+                    Cargar más ({filtrados.length - visibleCount} restantes)
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
+
+      <button
+        type="button"
+        aria-label="Volver arriba"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        className={`fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-primary text-on-primary shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 ${
+          showScrollTop
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <ChevronIcon direction="up" />
+      </button>
     </>
   );
 }
@@ -280,7 +359,9 @@ function CategoriaChip({
   );
 }
 
-function ChevronIcon({ direction }: { direction: "left" | "right" }) {
+function ChevronIcon({ direction }: { direction: "left" | "right" | "up" }) {
+  const rotation =
+    direction === "left" ? "rotate-180" : direction === "up" ? "-rotate-90" : "";
   return (
     <svg
       width="18"
@@ -291,9 +372,26 @@ function ChevronIcon({ direction }: { direction: "left" | "right" }) {
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={direction === "left" ? "rotate-180" : ""}
+      className={rotation}
     >
       <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 6L9 17l-5-5" />
     </svg>
   );
 }
@@ -305,10 +403,15 @@ function RepuestoCard({
   repuesto: RepuestoConModelos;
   delay?: number;
 }) {
+  const [clicked, setClicked] = useState(false);
   const link = buildWhatsappLink({
     nombre: repuesto.nombre,
     codigo: repuesto.codigo,
   });
+  const handleWhatsappClick = () => {
+    setClicked(true);
+    setTimeout(() => setClicked(false), 1000);
+  };
   return (
     <div
       className="flex flex-col bg-surface-container-lowest border border-outline-variant/40 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 animate-fade-in-up"
@@ -352,9 +455,21 @@ function RepuestoCard({
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-auto flex items-center justify-center gap-1.5 bg-whatsapp-green text-white font-heading font-bold text-[13px] uppercase tracking-wide rounded-lg py-2.5 transition-all duration-200 hover:opacity-90 hover:scale-[1.03] active:scale-95"
+          onClick={handleWhatsappClick}
+          className={`mt-auto flex items-center justify-center gap-1.5 text-white font-heading font-bold text-[13px] uppercase tracking-wide rounded-lg py-2.5 transition-all duration-200 active:scale-95 ${
+            clicked
+              ? "bg-stock-available scale-[1.03]"
+              : "bg-whatsapp-green hover:opacity-90 hover:scale-[1.03]"
+          }`}
         >
-          Consultar por WhatsApp
+          {clicked ? (
+            <>
+              <CheckIcon />
+              ¡Abriendo WhatsApp!
+            </>
+          ) : (
+            "Consultar por WhatsApp"
+          )}
         </a>
       </div>
     </div>
