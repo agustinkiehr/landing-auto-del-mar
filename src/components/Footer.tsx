@@ -70,7 +70,7 @@ export default function Footer() {
             Ubicación
           </h3>
           <a
-            href="https://www.google.com/maps/search/?api=1&query=Jujuy+2461%2C+Mar+del+Plata"
+            href="https://maps.app.goo.gl/uJ7UggaQcq9e9nub8"
             target="_blank"
             rel="noopener noreferrer"
             className="leading-relaxed hover:text-white transition-colors underline decoration-dotted underline-offset-2"
