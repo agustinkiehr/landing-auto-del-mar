@@ -21,7 +21,7 @@ export default function Catalogo({
 
   const scrollModelos = (direccion: 1 | -1) => {
     modelosScrollRef.current?.scrollBy({
-      left: direccion * 360,
+      left: direccion * 620,
       behavior: "smooth",
     });
   };
@@ -95,7 +95,7 @@ export default function Catalogo({
           <div className="relative group/carousel">
             <div
               ref={modelosScrollRef}
-              className="flex gap-space-md overflow-x-auto pb-2 scroll-smooth [scrollbar-width:none]"
+              className="flex gap-space-lg overflow-x-auto pb-2 scroll-smooth [scrollbar-width:none]"
             >
               <ModeloChip
                 nombre="Todos los modelos"
@@ -214,17 +214,17 @@ function ModeloChip({
           : "border-transparent bg-surface-container-lowest/60 hover:bg-surface-container-lowest"
       }`}
     >
-      <div className="w-40 h-40 rounded-lg bg-surface-container-lowest flex items-center justify-center overflow-hidden">
+      <div className="w-64 h-64 rounded-lg bg-surface-container-lowest flex items-center justify-center overflow-hidden">
         {foto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={foto} alt={nombre} className="w-full h-full object-contain" />
         ) : (
-          <span className="text-on-surface-variant text-[14px]">
+          <span className="text-on-surface-variant text-[16px]">
             {nombre.slice(0, 3).toUpperCase()}
           </span>
         )}
       </div>
-      <span className="text-[14px] font-heading font-semibold text-on-surface whitespace-nowrap">
+      <span className="text-[16px] font-heading font-semibold text-on-surface whitespace-nowrap">
         {nombre}
       </span>
     </button>
