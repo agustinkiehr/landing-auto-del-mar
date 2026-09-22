@@ -29,6 +29,7 @@ export default function Hero() {
           </p>
 
           <div className="pt-space-md flex flex-wrap items-center gap-x-space-lg gap-y-space-sm text-[12px] font-heading font-semibold text-primary-fixed-dim">
+            <span>✓ Concesionaria oficial Renault</span>
             <span>✓ Garantía de fábrica Renault</span>
             <span>✓ Envíos a todo el país</span>
             <span>✓ Stock de clásicos y línea vigente</span>
