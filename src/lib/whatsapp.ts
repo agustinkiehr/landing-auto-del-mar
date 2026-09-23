@@ -9,3 +9,18 @@ export function buildWhatsappLink(params: {
   const texto = `Hola! Quería consultar por el repuesto: ${params.nombre} (código ${params.codigo}). ¿Tienen stock?`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`;
 }
+
+export function buildWhatsappSolicitudLink(params: {
+  busqueda: string;
+  detalle?: string;
+}) {
+  const partes = [
+    `Hola! Busqué "${params.busqueda}" en la web de Auto del Mar y no lo encontré en el catálogo.`,
+    params.detalle?.trim()
+      ? `Detalle: ${params.detalle.trim()}`
+      : null,
+    `¿Podrían conseguirlo en la terminal de Renault Argentina?`,
+  ].filter(Boolean);
+  const texto = partes.join(" ");
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`;
+}

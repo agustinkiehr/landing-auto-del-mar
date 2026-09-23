@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modelo, Repuesto } from "@/lib/supabase";
-import { buildWhatsappLink } from "@/lib/whatsapp";
+import { buildWhatsappLink, buildWhatsappSolicitudLink } from "@/lib/whatsapp";
 
 type RepuestoConModelos = Repuesto & { modelos: string[] };
 
@@ -232,10 +232,11 @@ export default function Catalogo({
           </div>
 
           {filtrados.length === 0 ? (
-            <p className="text-on-surface-variant py-space-xl text-center animate-fade-in-up">
-              No encontramos repuestos con esos filtros. Probá con otro
-              modelo o categoría.
-            </p>
+            <SolicitudRepuesto
+              busqueda={busqueda}
+              modeloActivo={modeloActivo}
+              categoriaActiva={categoriaActiva}
+            />
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
@@ -356,6 +357,100 @@ function CategoriaChip({
     >
       {nombre}
     </button>
+  );
+}
+
+function SearchOffIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-on-surface-variant"
+    >
+      <circle cx="10" cy="10" r="6" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  );
+}
+
+function SolicitudRepuesto({
+  busqueda,
+  modeloActivo,
+  categoriaActiva,
+}: {
+  busqueda: string;
+  modeloActivo: string;
+  categoriaActiva: string;
+}) {
+  const [detalle, setDetalle] = useState("");
+  const [clicked, setClicked] = useState(false);
+
+  const contextoPartes = [
+    busqueda.trim() || null,
+    modeloActivo !== "todos" ? `modelo ${modeloActivo}` : null,
+    categoriaActiva !== "todas" ? `categoría ${categoriaActiva}` : null,
+  ].filter((p): p is string => Boolean(p));
+  const contexto = contextoPartes.length > 0 ? contextoPartes.join(" · ") : "un repuesto";
+
+  const link = buildWhatsappSolicitudLink({ busqueda: contexto, detalle });
+
+  const handleClick = () => {
+    setClicked(true);
+    setTimeout(() => setClicked(false), 1200);
+  };
+
+  return (
+    <div className="max-w-xl mx-auto py-space-xl text-center animate-fade-in-up">
+      <div className="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center mx-auto mb-space-md">
+        <SearchOffIcon />
+      </div>
+      <h3 className="font-heading font-bold text-[18px] text-on-surface mb-1.5">
+        No encontramos ese repuesto en el catálogo
+      </h3>
+      <p className="text-on-surface-variant text-[14px] mb-space-md">
+        Puede que lo tengamos igual — contanos qué necesitás y lo pedimos a la
+        terminal de Renault Argentina.
+      </p>
+
+      <div className="bg-surface-container-low rounded-lg p-space-md text-left space-y-space-sm">
+        <p className="text-[12px] text-on-surface-variant">
+          Buscaste: <span className="font-semibold text-on-surface">{contexto}</span>
+        </p>
+        <textarea
+          value={detalle}
+          onChange={(e) => setDetalle(e.target.value)}
+          placeholder="Contanos más detalles: modelo del auto, año, motor... (opcional)"
+          rows={3}
+          className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-space-sm text-[13px] focus:outline-none focus:border-primary transition-colors resize-none"
+        />
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={handleClick}
+          className={`flex items-center justify-center gap-1.5 text-white font-heading font-bold text-[13px] uppercase tracking-wide rounded-lg py-2.5 transition-all duration-200 active:scale-95 w-full ${
+            clicked
+              ? "bg-stock-available scale-[1.02]"
+              : "bg-whatsapp-green hover:opacity-90 hover:scale-[1.02]"
+          }`}
+        >
+          {clicked ? (
+            <>
+              <CheckIcon />
+              ¡Listo, enviando por WhatsApp!
+            </>
+          ) : (
+            "Pedir este repuesto por WhatsApp"
+          )}
+        </a>
+      </div>
+    </div>
   );
 }
 
