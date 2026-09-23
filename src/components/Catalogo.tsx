@@ -45,7 +45,7 @@ export default function Catalogo({
   modelos: Modelo[];
 }) {
   const [modeloActivo, setModeloActivo] = useState<string>("todos");
-  const [categoriaActiva, setCategoriaActiva] = useState<string>("todas");
+  const [categoriasActivas, setCategoriasActivas] = useState<string[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [tab, setTab] = useState<(typeof TABS)[number]>("todos");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -54,7 +54,13 @@ export default function Catalogo({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [tab, modeloActivo, categoriaActiva, busqueda]);
+  }, [tab, modeloActivo, categoriasActivas, busqueda]);
+
+  const toggleCategoria = (c: string) => {
+    setCategoriasActivas((prev) =>
+      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+    );
+  };
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 700);
@@ -81,7 +87,7 @@ export default function Catalogo({
     if (tab !== "todos" && r.estado !== tab) return false;
     if (modeloActivo !== "todos" && !r.modelos.includes(modeloActivo))
       return false;
-    if (categoriaActiva !== "todas" && r.categoria !== categoriaActiva)
+    if (categoriasActivas.length > 0 && !categoriasActivas.includes(r.categoria))
       return false;
     if (
       busqueda.trim() &&
@@ -199,15 +205,15 @@ export default function Catalogo({
           <div className="flex flex-wrap gap-space-sm">
             <CategoriaChip
               nombre="Todas"
-              activo={categoriaActiva === "todas"}
-              onClick={() => setCategoriaActiva("todas")}
+              activo={categoriasActivas.length === 0}
+              onClick={() => setCategoriasActivas([])}
             />
             {categorias.map((c) => (
               <CategoriaChip
                 key={c}
                 nombre={c}
-                activo={categoriaActiva === c}
-                onClick={() => setCategoriaActiva(c)}
+                activo={categoriasActivas.includes(c)}
+                onClick={() => toggleCategoria(c)}
               />
             ))}
           </div>
@@ -217,25 +223,27 @@ export default function Catalogo({
       {/* CATÁLOGO */}
       <section id="catalogo-de-piezas" className="w-full bg-surface pb-space-xl">
         <div className="max-w-[1360px] mx-auto px-margin-mobile md:px-margin">
+          <div className="relative mb-space-md">
+            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" />
+            <input
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscá por código OEM o nombre del repuesto..."
+              className="w-full bg-surface-container-lowest border-2 border-outline-variant/50 rounded-xl pl-12 pr-4 py-3.5 md:py-4 text-[15px] md:text-[16px] shadow-sm transition-all duration-200 focus:outline-none focus:border-renault-yellow focus:shadow-md placeholder:text-on-surface-variant/60"
+            />
+          </div>
+
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-sm mb-space-lg">
             <h2 className="font-heading text-[20px] md:text-[24px] font-bold text-primary">
               Catálogo ({animatedCount})
             </h2>
-            <div className="flex items-center bg-surface-container-low rounded-lg px-space-sm py-2 w-full md:w-72">
-              <input
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Código OEM o nombre..."
-                className="bg-transparent text-[14px] w-full focus:outline-none placeholder:text-on-surface-variant/70"
-              />
-            </div>
           </div>
 
           {filtrados.length === 0 ? (
             <SolicitudRepuesto
               busqueda={busqueda}
               modeloActivo={modeloActivo}
-              categoriaActiva={categoriaActiva}
+              categoriasActivas={categoriasActivas}
             />
           ) : (
             <>
@@ -360,18 +368,37 @@ function CategoriaChip({
   );
 }
 
-function SearchOffIcon() {
+function SearchIcon({ className = "" }: { className?: string }) {
   return (
     <svg
-      width="24"
-      height="24"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M21 21l-4.8-4.8" />
+    </svg>
+  );
+}
+
+function SearchOffIcon({ className = "text-on-surface-variant" }: { className?: string }) {
+  return (
+    <svg
+      width="26"
+      height="26"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="text-on-surface-variant"
+      className={className}
     >
       <circle cx="10" cy="10" r="6" />
       <path d="M21 21l-4.35-4.35" />
@@ -382,11 +409,11 @@ function SearchOffIcon() {
 function SolicitudRepuesto({
   busqueda,
   modeloActivo,
-  categoriaActiva,
+  categoriasActivas,
 }: {
   busqueda: string;
   modeloActivo: string;
-  categoriaActiva: string;
+  categoriasActivas: string[];
 }) {
   const [detalle, setDetalle] = useState("");
   const [clicked, setClicked] = useState(false);
@@ -394,7 +421,7 @@ function SolicitudRepuesto({
   const contextoPartes = [
     busqueda.trim() || null,
     modeloActivo !== "todos" ? `modelo ${modeloActivo}` : null,
-    categoriaActiva !== "todas" ? `categoría ${categoriaActiva}` : null,
+    categoriasActivas.length > 0 ? `categoría ${categoriasActivas.join(", ")}` : null,
   ].filter((p): p is string => Boolean(p));
   const contexto = contextoPartes.length > 0 ? contextoPartes.join(" · ") : "un repuesto";
 
@@ -406,35 +433,35 @@ function SolicitudRepuesto({
   };
 
   return (
-    <div className="max-w-xl mx-auto py-space-xl text-center animate-fade-in-up">
-      <div className="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center mx-auto mb-space-md">
-        <SearchOffIcon />
+    <div className="max-w-2xl mx-auto my-space-lg rounded-2xl bg-primary text-white p-space-lg md:p-space-xl text-center animate-fade-in-up shadow-[0_20px_60px_rgba(0,0,0,0.25)] border border-renault-yellow/30">
+      <div className="w-16 h-16 rounded-full bg-renault-yellow flex items-center justify-center mx-auto mb-space-md">
+        <SearchOffIcon className="text-primary" />
       </div>
-      <h3 className="font-heading font-bold text-[18px] text-on-surface mb-1.5">
-        No encontramos ese repuesto en el catálogo
+      <h3 className="font-heading font-bold text-[22px] md:text-[26px] mb-2">
+        ¿No encontraste tu repuesto?
       </h3>
-      <p className="text-on-surface-variant text-[14px] mb-space-md">
-        Puede que lo tengamos igual — contanos qué necesitás y lo pedimos a la
-        terminal de Renault Argentina.
+      <p className="text-primary-fixed-dim text-[15px] mb-space-lg max-w-md mx-auto">
+        Puede que lo tengamos igual. Contanos qué necesitás y lo pedimos
+        directo a la <span className="text-renault-yellow font-semibold">terminal de Renault Argentina</span>.
       </p>
 
-      <div className="bg-surface-container-low rounded-lg p-space-md text-left space-y-space-sm">
-        <p className="text-[12px] text-on-surface-variant">
-          Buscaste: <span className="font-semibold text-on-surface">{contexto}</span>
+      <div className="bg-white/5 border border-white/10 rounded-xl p-space-md text-left space-y-space-sm backdrop-blur-sm">
+        <p className="text-[12px] text-primary-fixed-dim">
+          Buscaste: <span className="font-semibold text-white">{contexto}</span>
         </p>
         <textarea
           value={detalle}
           onChange={(e) => setDetalle(e.target.value)}
           placeholder="Contanos más detalles: modelo del auto, año, motor... (opcional)"
           rows={3}
-          className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-space-sm text-[13px] focus:outline-none focus:border-primary transition-colors resize-none"
+          className="w-full bg-white/10 border border-white/15 rounded-lg p-space-sm text-[13px] text-white placeholder:text-primary-fixed-dim/70 focus:outline-none focus:border-renault-yellow transition-colors resize-none"
         />
         <a
           href={link}
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleClick}
-          className={`flex items-center justify-center gap-1.5 text-white font-heading font-bold text-[13px] uppercase tracking-wide rounded-lg py-2.5 transition-all duration-200 active:scale-95 w-full ${
+          className={`flex items-center justify-center gap-1.5 text-white font-heading font-bold text-[14px] uppercase tracking-wide rounded-lg py-3.5 transition-all duration-200 active:scale-95 w-full shadow-lg ${
             clicked
               ? "bg-stock-available scale-[1.02]"
               : "bg-whatsapp-green hover:opacity-90 hover:scale-[1.02]"
