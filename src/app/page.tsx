@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import MarcasBanner from "@/components/MarcasBanner";
 import Footer from "@/components/Footer";
 import Catalogo from "@/components/Catalogo";
 import { supabase, Modelo, Repuesto } from "@/lib/supabase";
@@ -38,6 +39,7 @@ export default async function Home() {
       <Header />
       <main className="pt-20">
         <Hero />
+        <MarcasBanner />
         <Catalogo repuestos={repuestos} modelos={modelos} />
       </main>
       <Footer />
