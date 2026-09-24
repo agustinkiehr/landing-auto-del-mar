@@ -518,6 +518,14 @@ function CheckIcon() {
   );
 }
 
+function formatPrecio(precio: number) {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(precio);
+}
+
 function RepuestoCard({
   repuesto,
   delay = 0,
@@ -552,18 +560,34 @@ function RepuestoCard({
         )}
       </div>
       <div className="flex flex-col gap-1.5 p-space-md flex-1">
-        <span
-          className={`self-start px-2 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wide ${
-            repuesto.estado === "vigente"
-              ? "bg-[#E6F8EE] text-stock-available"
-              : "bg-[#FEF3C7] text-discontinued-amber"
-          }`}
-        >
-          {repuesto.estado === "vigente" ? "En stock" : "Clásico"}
-        </span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wide ${
+              repuesto.estado === "vigente"
+                ? "bg-[#E6F8EE] text-stock-available"
+                : "bg-[#FEF3C7] text-discontinued-amber"
+            }`}
+          >
+            {repuesto.estado === "vigente" ? "Línea actual" : "Clásico"}
+          </span>
+          {repuesto.stock !== null && (
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wide ${
+                repuesto.stock > 0
+                  ? "bg-[#E6F8EE] text-stock-available"
+                  : "bg-surface-container text-on-surface-variant"
+              }`}
+            >
+              {repuesto.stock > 0 ? `${repuesto.stock} en stock` : "Sin stock"}
+            </span>
+          )}
+        </div>
         <h3 className="font-heading font-semibold text-[15px] text-on-surface leading-snug">
           {repuesto.nombre}
         </h3>
+        <span className="font-heading font-bold text-[19px] text-primary">
+          {repuesto.precio !== null ? formatPrecio(repuesto.precio) : "Consultar precio"}
+        </span>
         <span className="text-[12px] text-on-surface-variant font-mono uppercase tracking-wide">
           Cód. {repuesto.codigo}
         </span>

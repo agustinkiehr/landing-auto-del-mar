@@ -22,4 +22,6 @@ export type Repuesto = {
   foto_url: string | null;
   descripcion: string | null;
   destacado: boolean;
+  precio: number | null;
+  stock: number | null;
 };
